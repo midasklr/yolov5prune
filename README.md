@@ -1,5 +1,4 @@
 
-
 # yolov5模型剪枝
 
 
@@ -191,8 +190,3 @@ backbone一共有3个bottleneck，裁剪全部bottleneck：
 | 85% bn prune                | 0.284 | 3.7 M      |
 | 78% conv prune              | 0.284 | 3.9 M      |
 | 85% bn prune+78% conv prune | 0.284 | 3.7 M      |
-
-
-
-
-
