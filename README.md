@@ -47,7 +47,7 @@ BN层的具体操作有两部分：
 
 ​														𝐿′=∑𝑙′+𝜆∑𝑔′(𝛾)=∑𝑙′+𝜆∑|𝛾|′=∑𝑙′+𝜆∑𝛾∗𝑠𝑖𝑔𝑛(𝛾)
 
-所以只需要在BP传播时候，在BN层权重乘以权重的符合函数输出和系数即可，对应添加如下代码:
+所以只需要在BP传播时候，在BN层权重乘以权重的符号函数输出和系数即可，对应添加如下代码:
 
 ```python
             # Backward
@@ -75,7 +75,8 @@ BN层的具体操作有两部分：
             optimizer.zero_grad()
 ```
 
-这里并未对所有BN层gamma进行约束，详情见yolov5s每个模块（https://blog.csdn.net/IEEE_FELLOW/article/details/117536808）分析，这里对C3结构中的Bottleneck结构中有shortcut的层不进行剪枝，主要是为了保持tensor维度可以加：
+这里并未对所有BN层gamma进行约束，详情见yolov5s每个模块 https://blog.csdn.net/IEEE_FELLOW/article/details/117536808
+分析，这里对C3结构中的Bottleneck结构中有shortcut的层不进行剪枝，主要是为了保持tensor维度可以加：
 
 <p align="center">
 <img src="img/Screenshot from 2021-05-27 22-20-33.png">
