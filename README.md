@@ -119,6 +119,11 @@ python train_sparsity.py --st --sr 0.0001 --weights yolov5s.pt --adam --epochs 1
 ```
 
 sr的选择需要根据数据集调整，可以通过观察tensorboard的map，gamma变化直方图等选择。
+在run/train/exp*/目录下:
+```
+tensorboard --logdir .
+```
+然后点击出现的链接观察训练中的各项指标.
 
 训练完成后进行剪枝：
 
@@ -191,3 +196,8 @@ backbone一共有3个bottleneck，裁剪全部bottleneck：
 | 85% bn prune                | 0.284 | 3.7 M      |
 | 78% conv prune              | 0.284 | 3.9 M      |
 | 85% bn prune+78% conv prune | 0.284 | 3.7 M      |
+
+## 调参
+1. 浅层尽量少剪,从训练完成后gamma每一层的分布也可以看出来.
+2. 系数λ的选择需要平衡map和剪枝力度.首先通过train.py训练一个正常情况下的baseline.然后在稀疏训练过程中观察MAP和gamma直方图变化,MAP掉点严重和gamma稀疏过快等情况下,可以适当降低λ.反之如果你想压缩一个尽量小的模型,可以适当调整λ.
+3. 稀疏训练=>剪枝=>微调 可以反复迭代这个过程多次剪枝.
