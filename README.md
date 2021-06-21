@@ -60,8 +60,7 @@ BN层的具体操作有两部分：
                 for k, m in model.named_modules():
                     if isinstance(m, Bottleneck):
                         if m.add:
-                            print("miss : ", k)
-                            ignore_bn_list.append(i.rsplit(".", 2)[0] + ".cv1.bn")
+                            ignore_bn_list.append(k.rsplit(".", 2)[0] + ".cv1.bn")
                             ignore_bn_list.append(k + '.cv1.bn')
                             ignore_bn_list.append(k + '.cv2.bn')
                     if isinstance(m, nn.BatchNorm2d) and (k not in ignore_bn_list):

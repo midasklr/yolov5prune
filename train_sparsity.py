@@ -329,8 +329,7 @@ def train(hyp, opt, device, tb_writer=None):
                 for k, m in model.named_modules():
                     if isinstance(m, Bottleneck):
                         if m.add:
-                            print("miss : ", k)
-                            ignore_bn_list.append(i.rsplit(".", 2)[0] + ".cv1.bn")
+                            ignore_bn_list.append(k.rsplit(".", 2)[0] + ".cv1.bn")
                             ignore_bn_list.append(k + '.cv1.bn')
                             ignore_bn_list.append(k + '.cv2.bn')
                     if isinstance(m, nn.BatchNorm2d) and (k not in ignore_bn_list):
@@ -511,7 +510,7 @@ def train(hyp, opt, device, tb_writer=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--st', action='store_true', help='train with L1 sparsity normalization')
+    parser.add_argument('--st', action='store_true',default=True, help='train with L1 sparsity normalization')
     parser.add_argument('--sr', type=float, default=0.001, help='L1 normal sparse rate')
     parser.add_argument('--weights', type=str, default='yolov5s.pt', help='initial weights path')
     parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
@@ -519,7 +518,7 @@ if __name__ == '__main__':
     parser.add_argument('--hyp', type=str, default='data/hyp.scratch.yaml', help='hyperparameters path')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--batch-size', type=int, default=16, help='total batch size for all GPUs')
-    parser.add_argument('--img-size', nargs='+', type=int, default=[416, 416], help='[train, test] image sizes')
+    parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640], help='[train, test] image sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')
     parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
     parser.add_argument('--nosave', action='store_true', help='only save final checkpoint')

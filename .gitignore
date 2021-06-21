@@ -24,6 +24,8 @@ data/Mini
 runs/*
 data/ztdiva.names
 data/mini.yaml
+runs
+runs/*
 data/test
 data/test/*
 *.pybk
