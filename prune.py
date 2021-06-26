@@ -361,7 +361,7 @@ def test_prune(data,
                 print(i, layer)
             # bnw = layer.state_dict()['weight']
     model_list = {k:v for k,v in model_list.items() if k not in ignore_bn_list}
-    print("prune module :",model_list.keys())
+  #  print("prune module :",model_list.keys())
     prune_conv_list = [layer.replace("bn", "conv") for layer in model_list.keys()]
     # print(prune_conv_list)
     bn_weights = gather_bn_weights(model_list)
@@ -379,6 +379,7 @@ def test_prune(data,
 
     print(f'Suggested Gamma threshold should be less than {highest_thre:.4f}.')
     print(f'The corresponding prune ratio is {percent_limit:.3f}, but you can set higher.')
+    assert opt.percent < percent_limit, f"Prune ratio should less than {percent_limit}, otherwise it may cause error!!!"
 
     # model_copy = deepcopy(model)
     thre_index = int(len(sorted_bn) * opt.percent)
@@ -446,7 +447,7 @@ def test_prune(data,
             # print("bn_module:", bn_module.bias)
             print(f"|\t{bnname:<25}{'|':<10}{bn_module.weight.data.size()[0]:<20}{'|':<10}{int(mask.sum()):<20}|")
     print("=" * 94)
-    print(maskbndict.keys())
+   # print(maskbndict.keys())
 
     pruned_model = ModelPruned(maskbndict=maskbndict, cfg=pruned_yaml, ch=3).cuda()
     # Compatibility updates
@@ -472,6 +473,8 @@ def test_prune(data,
                     in_idx = np.squeeze(np.argwhere(np.asarray(maskbndict[former].cpu().numpy())))
                     w = layer.weight.data[:, in_idx, :, :].clone()
                     w = w[out_idx, :, :, :].clone()
+                    if len(w.shape) ==3:
+                        w = w.unsqueeze(0)
                     pruned_layer.weight.data = w.clone()
                     changed_state.append(layername + ".weight")
                 if isinstance(former, list):
@@ -490,6 +493,7 @@ def test_prune(data,
             else:
                 out_idx = np.squeeze(np.argwhere(np.asarray(maskbndict[layername[:-4] + "bn"].cpu().numpy())))
                 w = layer.weight.data[out_idx, :, :, :].clone()
+                assert len(w.shape) == 4
                 pruned_layer.weight.data = w.clone()
                 changed_state.append(layername + ".weight")
 
@@ -742,10 +746,10 @@ def test_prune(data,
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='test.py')
-    parser.add_argument('--weights', nargs='+', type=str, default='runs/train/exp4/weights/last.pt',
+    parser.add_argument('--weights', nargs='+', type=str, default='./runs/train/exp4/weights/last.pt',
                         help='model.pt path(s)')
     parser.add_argument('--data', type=str, default='data/mini.yaml', help='*.data path')
-    parser.add_argument('--percent', type=float, default=0.1, help='prune percentage')
+    parser.add_argument('--percent', type=float, default=0.9, help='prune percentage')
     parser.add_argument('--batch-size', type=int, default=32, help='size of each image batch')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.001, help='object confidence threshold')
