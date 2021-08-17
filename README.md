@@ -202,7 +202,7 @@ backbone一共有3个bottleneck，裁剪全部bottleneck：
 |            model                 | size   | mAPval 0.5:0.95 | mAPval 0.5 |
 | --------------------------- | ----- | ---------- | ------- |
 | yolov5s       | 640  |    0.357  | 0.558 |
-| mobilenetv3small 0.75                 |    640   | TD      | TD        |
+| mobilenetv3small 0.75                 |    640   | 0.24      |  0.421      |
 
 
 
