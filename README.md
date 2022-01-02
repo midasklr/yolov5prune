@@ -1,6 +1,7 @@
 
 # yolov5模型剪枝
 
+**`2022-1-1`**: 已更新v6.0版本剪枝:https://github.com/midasklr/yolov5prune/tree/v6.0
 
 **`2021-12-14`**:近期会更新v6.0版本剪枝和蒸馏.
 
