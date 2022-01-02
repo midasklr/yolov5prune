@@ -1,4 +1,6 @@
 # Repo-specific GitIgnore ----------------------------------------------------------------------------------------------
+*.pt
+*.onnx
 *.jpg
 *.jpeg
 *.bmp
@@ -24,6 +26,8 @@ data/Mini
 runs/*
 data/ztdiva.names
 data/mini.yaml
+VOC
+VOC/*
 runs
 runs/*
 data/test

@@ -1,21 +1,23 @@
-# PASCAL VOC dataset http://host.robots.ox.ac.uk/pascal/VOC/
-# Train command: python train.py --data voc.yaml
-# Default dataset location is next to YOLOv5:
-#   /parent_folder
-#     /VOC
-#     /yolov5
+# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# PASCAL VOC dataset http://host.robots.ox.ac.uk/pascal/VOC by University of Oxford
+# Example usage: python train.py --data VOC.yaml
+# parent
+# ├── yolov5
+# └── datasets
+#     └── VOC  ← downloads here
 
 
-# download command/URL (optional)
-download: bash data/scripts/get_voc.sh
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: ./
+train: # train images (relative to 'path')  16551 images
+  - VOC/images/train
+val: # val images (relative to 'path')  4952 images
+  - VOC/images/test
 
-# train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]
-train: ../VOC/images/train/  # 16551 images
-val: ../VOC/images/val/  # 4952 images
+# Classes
+nc: 20  # number of classes
+names: ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog',
+        'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']  # class names
 
-# number of classes
-nc: 20
 
-# class names
-names: [ 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog',
-         'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor' ]
+
