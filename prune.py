@@ -16,6 +16,7 @@ from models.common import Bottleneck
 import numpy as np
 import torch
 from tqdm import tqdm
+import yaml  
 from utils.prune_utils import gather_bn_weights, obtain_bn_mask
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -306,6 +307,7 @@ def run(data,
 @torch.no_grad()
 def run_prune(data,
         weights=None,  # model.pt path(s)
+        cfg = 'models/yolov5l.yaml',
         percent=0,
         batch_size=32,  # batch size
         imgsz=640,  # inference size (pixels)
@@ -419,11 +421,14 @@ def run_prune(data,
     # ============================== save pruned model config yaml =================================#
     pruned_yaml = {}
     nc = model.model[-1].nc
+    with open(cfg, encoding='ascii', errors='ignore') as f:
+        model_yamls = yaml.safe_load(f)  # model dict
+    # # Define model
     pruned_yaml["nc"] = model.model[-1].nc
-    pruned_yaml["depth_multiple"] = 0.33
-    pruned_yaml["width_multiple"] = 0.50
-    pruned_yaml["anchors"] = [[10,13, 16,30, 33,23], [30,61, 62,45, 59,119], [116,90, 156,198, 373,326]]
-    anchors = [[10,13, 16,30, 33,23], [30,61, 62,45, 59,119], [116,90, 156,198, 373,326]]
+    pruned_yaml["depth_multiple"] = model_yamls["depth_multiple"]
+    pruned_yaml["width_multiple"] = model_yamls["width_multiple"]
+    pruned_yaml["anchors"] = model_yamls["anchors"]
+    anchors = model_yamls["anchors"]
     pruned_yaml["backbone"] = [
         [-1, 1, Conv, [64, 6, 2, 2]],  # 0-P1/2
         [-1, 1, Conv, [128, 3, 2]],  # 1-P2/4
@@ -490,10 +495,10 @@ def run_prune(data,
     pruned_model_state = pruned_model.state_dict()
     # print("="*100)
     # for i, k in enumerate(pruned_model_state.keys()):
-    #     print("the ", i, " : ", k)
+    #     print("the ", i, " : ", k, pruned_model_state[k].shape)
     # print("="*100)
     # for i, k in enumerate(modelstate.keys()):
-    #     print("the ", i, " : ", k)
+    #     print("the ", i, " : ", k, modelstate[k].shape)
     assert pruned_model_state.keys() == modelstate.keys()
     # ======================================================================================= #
     changed_state = []
@@ -730,8 +735,9 @@ def run_prune(data,
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', type=str, default=ROOT / 'data/voc.yaml', help='dataset.yaml path')
-    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'runs/train/exp27/weights/last.pt', help='model.pt path(s)')
-    parser.add_argument('--percent', type=float, default=0.5, help='prune percentage')
+    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'runs/train/exp47/weights/last.pt', help='model.pt path(s)')
+    parser.add_argument('--cfg', type=str, default='models/yolov5l.yaml', help='model.yaml path')
+    parser.add_argument('--percent', type=float, default=0.4, help='prune percentage')
     parser.add_argument('--batch-size', type=int, default=32, help='batch size')
     parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=512, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.001, help='confidence threshold')
@@ -766,7 +772,7 @@ def main(opt):
         if opt.conf_thres > 0.001:  # https://github.com/ultralytics/yolov5/issues/1466
             LOGGER.info(f'WARNING: confidence threshold {opt.conf_thres} >> 0.001 will produce invalid mAP values.')
         LOGGER.info(f'test before prune ... ')
-        # run(**vars(opt))
+        run(**vars(opt))
         LOGGER.info('='*100)
         LOGGER.info('Test after prune ... ')
         run_prune(**vars(opt))

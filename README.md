@@ -2,7 +2,9 @@
 
 yolov5 剪枝, 基于最新v6.0分支,目前支持yolov5s模型剪枝.
 
-### update
+### updates
+
+```2022-1-3```支持最新v6.0分支n/s/m/l等模型剪枝.
 
 ```2022-1-1```支持最新v6.0分支s模型剪枝.
 
@@ -61,10 +63,10 @@ yolov5 剪枝, 基于最新v6.0分支,目前支持yolov5s模型剪枝.
 4. 剪枝
 
    ```
-   python prune.py --percent 0.5 --weights runs/train/exp2/weights/last.pt --data data/voc.yaml 
+   python prune.py --percent 0.5 --weights runs/train/exp2/weights/last.pt --data data/voc.yaml --cfg models/yolov5s.yaml
    ```
 
-   会保存剪枝后模型pruned_model.pt.
+   会保存剪枝后模型pruned_model.pt. 注意--cfg参数对应的模型应该和--weights对应模型一致.
 
 5. 微调
 
@@ -80,22 +82,38 @@ yolov5 剪枝, 基于最新v6.0分支,目前支持yolov5s模型剪枝.
 
    一些实验如下:
 
-| model          | size | sr     | mAP@.5       | Speed CPU b1(ms) | Speed rtx2070 b1(ms) | params(M) | FLOPs@512 (B) | GPU Mem(MB) | model size |
-| -------------- | ---- | ------ | ------------ | ---------------- | -------------------- | --------- | ------------- | ----------- | ---------- |
-| faster rcnn    |      |        | 0.699(paper) |                  |                      |           |               |             |            |
-| SSD512         | 512  | 0      | 0.716(paper) |                  |                      |           |               |             |            |
-| yolov5n        | 512  | 0      | 0.655        | 23.6             | 5.4                  | 1.78      | 4.2           |             |            |
-| yolov5s        | 512  | 0      | 0.706        | 43.3             | 5.5                  | 7.06      | 16.0          | 871         |            |
-| yolov5l        | 512  | 0      | 0.743        | 162.2            | 12.9                 | 46.21     | 108.1         |             |            |
-| yolov5l6       | 512  | 0      | 0.74         | 176.5            | 16.5                 | 76.26     | 110.4         |             |            |
-| yolov5s        | 512  | 0.001  | 0.66         |                  |                      |           |               |             |            |
-| yolov5s        | 512  | 0.0001 | 0.702        |                  |                      |           |               |             |            |
-| yolov5s        | 512  | 0.0002 | 0.674        |                  |                      |           |               |             | 28.7       |
-| yolov5s-50%    | 512  | -      | 0.65         |                  |                      |           |               |             | 11.7       |
-| finetune above |      |        | 0.662        | 44.1             | 6.9                  |           |               | 867         |            |
+| model             | size | sr     | mAP@.5       | Speed CPU b1(ms) | Speed rtx2070 b1(ms) | params(M) | FLOPs@512 (B) | GPU Mem(MB) | model size |
+| ----------------- | ---- | ------ | ------------ | ---------------- | -------------------- | --------- | ------------- | ----------- | ---------- |
+| faster rcnn       |      |        | 0.699(paper) |                  |                      |           |               |             |            |
+| SSD512            | 512  | 0      | 0.716(paper) |                  |                      |           |               |             |            |
+| yolov5n           | 512  | 0      | 0.655        | 23.6             | 5.4                  | 1.78      | 4.2           |             |            |
+| yolov5s           | 512  | 0      | 0.706        | 43.3             | 5.5                  | 7.06      | 16.0          | 871         |            |
+| yolov5l           | 512  | 0      | 0.743        | 162.2            | 12.9                 | 46.21     | 108.1         |             |            |
+| yolov5l6          | 512  | 0      | 0.74         | 176.5            | 16.5                 | 76.26     | 110.4         |             |            |
+| yolov5s           | 512  | 0.001  | 0.66         |                  |                      |           |               |             |            |
+| yolov5s           | 512  | 0.0001 | 0.702        |                  |                      |           |               |             |            |
+| yolov5s           | 512  | 0.0002 | 0.674        |                  |                      |           |               |             | 28.7       |
+| yolov5s-50% prune | 512  | -      | 0.65         |                  |                      |           |               |             | 11.7       |
+| finetune above    |      |        | 0.662        | 44.1             | 6.9                  |           |               | 867         |            |
+| yolov5l           | 512  | 0.0001 | 0.686        |                  |                      |           |               |             |            |
+| yolov5l-40% prune | 512  |        | 0.646        |                  |                      |           |               |             |            |
+
+### yolov5l实验记录
+
+设置sr=0.0005进行稀疏训练,观察训练过程中:
+
+<p align="center">
+<img src="data/images/v5l_0.0005_bn.png">
+</p>
+
+<p align="center">
+<img src="data/images/v5l_0.0005.png">
+</p>
+
+在训练才55epoch时发现稀疏过快,同时map在0.625附近,距离正常训练map 0.743差距较大,于是设置sr=0.0001重新训练.
 
 ## TD
 
 - [x] yolov5 branch v6.0 model prune.
-- [ ] support yolov5n/m/l/x  and yolov5n/s/ml/x6.
+- [x] support yolov5n/m/l/x  and yolov5n/s/ml/x6.
 - [ ] knowledge distillation.
