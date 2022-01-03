@@ -1,5 +1,6 @@
-
 # yolov5模型剪枝
+
+**`2022-1-4`**: 已更新v5.0版本m/l/x模型剪枝,理论上yolov5l6等模型也支持.
 
 **`2022-1-1`**: 已更新v6.0版本剪枝:https://github.com/midasklr/yolov5prune/tree/v6.0
 
@@ -130,10 +131,10 @@ tensorboard --logdir .
 训练完成后进行剪枝：
 
 ```
-python prune.py --weights runs/train/exp1/weights/last.pt --percent 0.5
+python prune.py --weights runs/train/exp1/weights/last.pt --percent 0.5 --cfg models/yolov5s.yaml
 ```
 
-裁剪比例percent根据效果调整，可以从小到大试。裁剪完成会保存对应的模型pruned_model.pt。
+裁剪比例percent根据效果调整，可以从小到大试。注意cfg的模型文件需要和weights对应上,否则会出现[运行prune 过程中出现键值不对应的问题](https://github.com/midasklr/yolov5prune/issues/65),裁剪完成会保存对应的模型pruned_model.pt。
 
 微调：
 
