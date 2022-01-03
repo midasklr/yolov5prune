@@ -95,7 +95,7 @@ def train(hyp, opt, device, tb_writer=None):
         state_dict = intersect_dicts(state_dict, model.state_dict(), exclude=exclude)  # intersect
         model.load_state_dict(state_dict, strict=False)  # load
         logger.info('Transferred %g/%g items from %s' % (len(state_dict), len(model.state_dict()), weights))  # report
-        print(model)
+     #   print(model)
     else:
         print("not load")
         model = ModelPruned(opt.cfg, ch=3, nc=nc, anchors=hyp.get('anchors')).to(device)  # create
@@ -213,7 +213,7 @@ def train(hyp, opt, device, tb_writer=None):
     model.gr = 1.0  # iou loss ratio (obj_loss = 1.0 or iou)
     model.class_weights = labels_to_class_weights(dataset.labels, nc).to(device) * nc  # attach class weights
     
-    print("model.class_weights:",model.class_weights, nc)
+#    print("model.class_weights:",model.class_weights, nc)
     model.names = names
 
     # Start training
@@ -232,7 +232,7 @@ def train(hyp, opt, device, tb_writer=None):
     for epoch in range(start_epoch, epochs):  # epoch ------------------------------------------------------------------
 
         model.train()
-        print(optimizer)
+      #  print(optimizer)
 
         # Update image weights (optional)
         if opt.image_weights:
@@ -436,11 +436,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='pruned_model.pt', help='initial weights path')
     parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
-    parser.add_argument('--data', type=str, default='data/mini.yaml', help='data.yaml path')
+    parser.add_argument('--data', type=str, default='data/voc.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default='data/hyp.finetune.yaml', help='hyperparameters path')
     parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--batch-size', type=int, default=8, help='total batch size for all GPUs')
-    parser.add_argument('--img-size', nargs='+', type=int, default=[416, 416], help='[train, test] image sizes')
+    parser.add_argument('--batch-size', type=int, default=32, help='total batch size for all GPUs')
+    parser.add_argument('--img-size', nargs='+', type=int, default=[512, 512], help='[train, test] image sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')
     parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
     parser.add_argument('--nosave', action='store_true', help='only save final checkpoint')

@@ -41,7 +41,6 @@ logger = logging.getLogger(__name__)
 def updateBN(model):
     for m in model.named_modules():
         if isinstance(m, nn.BatchNorm2d):
-            print("find bn layer...")
             m.weight.grad.data.add_(0.001*torch.sign(m.weight.data))  # L1
 
 
@@ -110,13 +109,12 @@ def train(hyp, opt, device, tb_writer=None):
     for k, v in model.named_parameters():
         v.requires_grad = True  # train all layers
         if any(x in k for x in freeze):
-            print('freezing %s' % k)
             v.requires_grad = False
 
     # Optimizer
     nbs = 32  # nominal batch size
     accumulate = max(round(nbs / total_batch_size), 1)  # accumulate loss before optimizing
-    print("accumulate : ",accumulate)
+
     hyp['weight_decay'] *= total_batch_size * accumulate / nbs  # scale weight_decay
     logger.info(f"Scaled weight_decay = {hyp['weight_decay']}")
 
@@ -241,7 +239,6 @@ def train(hyp, opt, device, tb_writer=None):
     model.gr = 1.0  # iou loss ratio (obj_loss = 1.0 or iou)
     model.class_weights = labels_to_class_weights(dataset.labels, nc).to(device) * nc  # attach class weights
     
-    print("model.class_weights:",model.class_weights, nc)
     model.names = names
 
     # Start training
@@ -391,8 +388,8 @@ def train(hyp, opt, device, tb_writer=None):
             bnb_weights[index:(index + size)] = module_bias_list[idx].data.abs().clone()
             index += size
 
-        print("bn_weights:", torch.sort(bn_weights))
-        print("bn_bias:", torch.sort(bnb_weights))
+      #  print("bn_weights:", torch.sort(bn_weights))
+       # print("bn_bias:", torch.sort(bnb_weights))
         tb_writer.add_histogram('bn_weights/hist', bn_weights.numpy(), epoch, bins='doane')
         tb_writer.add_histogram('bn_bias/hist', bnb_weights.numpy(), epoch, bins='doane')
 
@@ -511,14 +508,14 @@ def train(hyp, opt, device, tb_writer=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--st', action='store_true',default=True, help='train with L1 sparsity normalization')
-    parser.add_argument('--sr', type=float, default=0.001, help='L1 normal sparse rate')
-    parser.add_argument('--weights', type=str, default='yolov5s.pt', help='initial weights path')
+    parser.add_argument('--sr', type=float, default=0.0002, help='L1 normal sparse rate')
+    parser.add_argument('--weights', type=str, default='yolov5l.pt', help='initial weights path')
     parser.add_argument('--cfg', type=str, default='', help='model.yaml path')
-    parser.add_argument('--data', type=str, default='data/mini.yaml', help='data.yaml path')
+    parser.add_argument('--data', type=str, default='data/voc.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default='data/hyp.scratch.yaml', help='hyperparameters path')
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--batch-size', type=int, default=16, help='total batch size for all GPUs')
-    parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640], help='[train, test] image sizes')
+    parser.add_argument('--batch-size', type=int, default=8, help='total batch size for all GPUs')
+    parser.add_argument('--img-size', nargs='+', type=int, default=[512, 512], help='[train, test] image sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')
     parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
     parser.add_argument('--nosave', action='store_true', help='only save final checkpoint')
@@ -534,7 +531,7 @@ if __name__ == '__main__':
     parser.add_argument('--adam', default =True,action='store_true', help='use torch.optim.Adam() optimizer')
     parser.add_argument('--sync-bn', action='store_true', help='use SyncBatchNorm, only available in DDP mode')
     parser.add_argument('--local_rank', type=int, default=-1, help='DDP parameter, do not modify')
-    parser.add_argument('--workers', type=int, default=8, help='maximum number of dataloader workers')
+    parser.add_argument('--workers', type=int, default=16, help='maximum number of dataloader workers')
     parser.add_argument('--project', default='runs/train', help='save to project/name')
     parser.add_argument('--entity', default=None, help='W&B entity')
     parser.add_argument('--name', default='exp', help='save to project/name')

@@ -140,7 +140,25 @@ python prune.py --weights runs/train/exp1/weights/last.pt --percent 0.5
 python finetune_pruned.py --weights pruned_model.pt --adam --epochs 100
 ```
 
+在VOC2007数据集上实验,训练集为VOC07 trainval, 测试集为VOC07 test.作为对比,这里列举了faster rcnn和SSD512在相同数据集上的实验结果, yolov5输入大小为512.为了节省时间,这里使用AdamW训练100 epoch.
 
+| model             | optim&epoch | sparity | mAP@.5      | mode size | forward time |
+| ----------------- | ----------- | ------- | ----------- | --------- | ------------ |
+| faster rcnn       |             | -       | 69.9(paper) |           |              |
+| SSD512            |             | -       | 71.6(paper) |           |              |
+| yolov5s           | sgd 300     | 0       | 67.4        |           |              |
+| yolov5s           | adamw 100   | 0       | 66.3        |           |              |
+| yolov5s           | adamw 100   | 0.0001  | 69.2        |           |              |
+| yolov5s           | sgd 300     | 0.001   | Inf. error  |           |              |
+| yolov5s           | adamw 100   | 0.001   | 65.7        | 28.7      | 7.32 ms      |
+| 55% prune yolov5s |             |         | 64.1        | 8.6       | 7.30 ms      |
+| fine-tune above   |             |         | 67.3        |           | 7.21 ms      |
+| yolov5l           | adamw 100   | 0       | 70.1        |           |              |
+| yolov5l           | adamw 100   | 0.001   | 0.659       |           | 12.95 ms     |
+
+
+
+在自己数据集上的实验结果:
 
 | model                 | sparity | map   | mode size |
 | --------------------- | ------- | ----- | --------- |
@@ -217,6 +235,7 @@ backbone一共有3个bottleneck，裁剪全部bottleneck：
 6. 剪枝多少参数，有的是时候和数据集关系很大，我分别在简单任务（5k images,40+ class）和复杂数据集（20w+ images， 120+ class）实验过，简单任务可以将模型剪到很小（小模型也相对不够鲁棒）；复杂的任务最终参数较难稀疏，能剪的参数很少（<20%）。
 7. yolov5的s,m,l,x四个模型结构是一样的，只是深度和宽度两个维度的缩放系数不同，所以本代码应该也适用m,l,x模型。
 8. 可以试试用大模型开始剪枝，比如用yolov5l,可能比直接用yolov5s开始剪枝效果更好？大模型的搜索空间通常更大。
+9. 在自己的数据集上,设置合理的输入往往很重要, 公开数据集VOC和COCO等通常做了处理,例如VOC长边都是500, COCO长边都是640, 这也是SSD设置输入300和512, yolov5设置输入640的一个重要原因.如果要在自己数据集上获得较好的性能,可以试试调整输入.
 
 ## 常见问题
 1. 稀疏训练是非常种重要的,也是调参的重点,多观察bn直方图变化,过快或者过慢都不适合,所以需要平衡你的sr, lr等.一般情况下,稀疏训练的结果和正常训练map是比较接近的.

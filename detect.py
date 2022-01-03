@@ -13,7 +13,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
     scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
 from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
-
+import time
 
 def detect(opt):
     source, weights, view_img, save_txt, imgsz = opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
@@ -57,6 +57,7 @@ def detect(opt):
     if device.type != 'cpu':
         model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
     t0 = time.time()
+    totaltime = 0
     for path, img, im0s, vid_cap in dataset:
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
@@ -66,9 +67,11 @@ def detect(opt):
 
         # Inference
         t1 = time_synchronized()
+        start = time.time()
         pred = model(img, augment=opt.augment)[0]
-        torch.save(model.state_dict(),"model.pth")
-        print(model)
+        end = time.time()
+        infertime = end - start
+        totaltime += infertime
 
         # Apply NMS
         pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms)
@@ -146,14 +149,14 @@ def detect(opt):
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
         print(f"Results saved to {save_dir}{s}")
 
-    print(f'Done. ({time.time() - t0:.3f}s)')
+    print(f'Done. ({time.time() - t0:.3f}s) average inference time : {totaltime/len(dataset)} s')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='/home/kong/yolov5/runs/train/exp42/weights/last.pt', help='model.pt path(s)')
-    parser.add_argument('--source', type=str, default='/home/kong/yolov5/data/test', help='source')  # file/folder, 0 for webcam
-    parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
+    parser.add_argument('--weights', nargs='+', type=str, default='runs/train/exp20/weights/last.pt', help='model.pt path(s)')
+    parser.add_argument('--source', type=str, default='VOC/images/test', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--img-size', type=int, default=512, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='IOU threshold for NMS')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
