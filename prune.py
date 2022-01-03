@@ -360,7 +360,6 @@ def test_prune(data,
         if isinstance(layer, nn.BatchNorm2d):
             if i not in ignore_bn_list:
                 model_list[i] = layer
-                print(i, layer)
             # bnw = layer.state_dict()['weight']
     model_list = {k:v for k,v in model_list.items() if k not in ignore_bn_list}
   #  print("prune module :",model_list.keys())
@@ -451,7 +450,6 @@ def test_prune(data,
             # print("bn_module:", bn_module.bias)
             print(f"|\t{bnname:<25}{'|':<10}{bn_module.weight.data.size()[0]:<20}{'|':<10}{int(mask.sum()):<20}|")
     print("=" * 94)
-   # print(maskbndict.keys())
 
     pruned_model = ModelPruned(maskbndict=maskbndict, cfg=pruned_yaml, ch=3).cuda()
     # Compatibility updates
@@ -463,12 +461,6 @@ def test_prune(data,
 
     from_to_map = pruned_model.from_to_map
     pruned_model_state = pruned_model.state_dict()
-    # print("="*100)
-    # for i, k in enumerate(pruned_model_state.keys()):
-    #     print("the ", i, " : ", k)
-    # print("="*100)
-    # for i, k in enumerate(modelstate.keys()):
-    #     print("the ", i, " : ", k)
     assert pruned_model_state.keys() == modelstate.keys()
     # ======================================================================================= #
     changed_state = []
