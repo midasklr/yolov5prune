@@ -1,6 +1,6 @@
 ## yolov5模型剪枝
 
-yolov5 剪枝, 基于最新v6.0分支,目前支持yolov5s模型剪枝.
+yolov5 剪枝, 基于最新v6.0分支,目前支持yolov5所有模型剪枝.
 
 ### updates
 
